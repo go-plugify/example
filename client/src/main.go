@@ -6,12 +6,10 @@ import (
 	"plugin20251014202027/pkg"
 )
 
-var ExportPlugin = Plugin{
-	BasePlugin: &BasePlugin{
-		Name:        "example",
-		Description: "An example plugin",
-		Version:     "v0.0.1",
-	},
+func init() {
+	ExportPlugin.Name = "example"
+	ExportPlugin.Description = "An example plugin"
+	ExportPlugin.Version = "v0.0.1"
 }
 
 // Run is called when the plugin is executed.

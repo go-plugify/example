@@ -2,6 +2,11 @@ module github.com/go-plugify/example
 
 go 1.23.10
 
+replace (
+	github.com/go-plugify/go-plugify => ./../go-plugify
+	github.com/go-plugify/webadapters => ./../components/webadapters
+)
+
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-plugify/go-plugify v0.0.0-00010101000000-000000000000

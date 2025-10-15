@@ -1,0 +1,55 @@
+package main
+
+import (
+	"context"
+
+	"plugin20251014202027/pkg"
+)
+
+var ExportPlugin = Plugin{
+	BasePlugin: &BasePlugin{
+		Name:        "example",
+		Description: "An example plugin",
+		Version:     "v0.0.1",
+	},
+}
+
+// Run is called when the plugin is executed.
+func (p Plugin) Run(args any) {
+	ctx := args.(HttpContext)
+	p.Logger().Info("Plugin %s is running, ctx %+v", p.Name, ctx)
+	p.Component("ginengine").(HttpRouter).ReplaceHandler("GET", "/", func(ctx context.Context) {
+		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from plugin !!!"})
+	})
+	cal := p.Component("calculator").(Calculator)
+	ctx.JSON(200, map[string]any{
+		"message":  "Plugin executed successfully",
+		"load pkg": pkg.SayHello(),
+		"1 + 2 = ": cal.Add(1, 2),
+		"5 * 5 = ": cal.Mul(5, 5),
+	})
+}
+
+// Methods returns a map of method names to functions that can be called on the plugin.
+func (p Plugin) Methods() map[string]func(any) any {
+	return map[string]func(any) any{
+		"add": func(args any) any {
+			nums := args.([]int)
+			if len(nums) != 2 {
+				return 0
+			}
+			return nums[0] + nums[1]
+		},
+	}
+}
+
+// ==============================
+// custom interface
+// ==============================
+
+type Calculator interface {
+	Add(a, b int) int
+	Sub(a, b int) int
+	Mul(a, b int) int
+	Div(a, b int) int
+}

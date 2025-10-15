@@ -1,16 +1,6 @@
 package main
 
-import (
-	"context"
-)
-
-var ExportPlugin = Plugin{
-	BasePlugin: &BasePlugin{
-		Name:        "example",
-		Description: "An example plugin",
-		Version:     "v0.1.0",
-	},
-}
+import "context"
 
 type BasePlugin struct {
 	Name        string
@@ -50,6 +40,11 @@ type Logger interface {
 	Info(format string, args ...any)
 }
 
+type Util interface {
+	GetAttr(obj any, attrName string) any
+	CallMethod(obj any, methodName string, args ...any) ([]any, error)
+}
+
 type Components interface {
 	Get(name string) any
 }
@@ -57,6 +52,22 @@ type Components interface {
 type Component interface {
 	Name() string
 	Service() any
+}
+
+func (p Plugin) Component(name string) any {
+	return p.Components.GetComponents().(Components).Get(name).(Component).Service()
+}
+
+func (p Plugin) Logger() Logger {
+	return p.Components.GetLogger().(Logger)
+}
+
+func (p Plugin) GetAttr(obj any, attrName string) any {
+	return p.Components.GetUtil().(Util).GetAttr(obj, attrName)
+}
+
+func (p Plugin) CallMethod(obj any, methodName string, args ...any) ([]any, error) {
+	return p.Components.GetUtil().(Util).CallMethod(obj, methodName, args...)
 }
 
 type HttpContext interface {
@@ -68,21 +79,4 @@ type HttpRouter interface {
 	ReplaceHandler(method, path string, handler func(ctx context.Context)) error
 	GetHandler(method, path string) (func(ctx context.Context), error)
 	GetHandlerName(method, path string) (string, error)
-}
-
-func (p Plugin) Run(args any) {
-	ctx := args.(HttpContext)
-	logger := p.Components.GetLogger().(Logger)
-	logger.Info("Plugin %s is running, ctx %+v", p.Name, ctx)
-
-	router := p.Components.GetComponents().(Components).Get("ginengine").(Component).Service().(HttpRouter)
-	router.ReplaceHandler("GET", "/", func(ctx context.Context) {
-		c := ctx.(HttpContext)
-		c.JSON(200, map[string]string{"message": "Hello from plugin 2!!!"})
-	})
-	ctx.JSON(200, map[string]string{"message": "Plugin executed successfully"})
-}
-
-func (p Plugin) Methods() map[string]func(any) {
-	return nil
 }

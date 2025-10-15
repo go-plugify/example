@@ -23,10 +23,9 @@ func (p Plugin) Run(args any) {
 	})
 	cal := p.Component("calculator").(Calculator)
 	ctx.JSON(200, map[string]any{
-		"message":  "Plugin executed successfully",
-		"load pkg": pkg.SayHello(),
-		"1 + 2 = ": cal.Add(1, 2),
-		"5 * 5 = ": cal.Mul(5, 5),
+		"message":      "Plugin executed successfully",
+		"load pkg":     pkg.SayHello(),
+		"1 + 5 * 5 = ": cal.Add(1, cal.Mul(5, 5)),
 	})
 }
 

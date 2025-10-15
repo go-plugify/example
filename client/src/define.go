@@ -2,6 +2,10 @@ package main
 
 import "context"
 
+var ExportPlugin = Plugin{
+	BasePlugin: &BasePlugin{},
+}
+
 type BasePlugin struct {
 	Name        string
 	Description string

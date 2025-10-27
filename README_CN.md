@@ -1,15 +1,40 @@
 # go-plugify 例子
 
-比较于 rpc 有什么不一样。
+这是一个简单的展示`go-plugify`怎么使用的例子。包括服务端跟客户端两部分。
 
-- rpc 没法直接获取server端对象，go-plugify只要挂载了，可以通过interface或unsafe方式调用方法或属性
-- rpc 要实现类似效果，需要server端做很多映射代码，go-plugify则不需要server有额外过多和复杂的侵入逻辑
-- 但也有缺点，就是plugin没法卸载，go-plugify每次执行会导致server端进程rss内存增加，只能通过重启优化
-- 编译.so以及上传稍微比较费时，不能用于实时服务
+## 依赖
 
-比较于 yaegi 有什么不一样。
+- 需要 `linux` 或 `mac` 系统
+- 需要 golang 1.23.10 版本及以上
 
-- 可以直接调用server端对象，但需要手动注册，但是写代码的时候是没有补全和提示的
-- 调用方法有限制，比如反射等是用不了的，而 go-plugify 支持原生go语法，有补全和提示，也能使用反射
+## 运行
 
-不建议用在生产环境
+### 服务端
+
+进入 `server` 目录，直接运行 `go run main.go`，看到启动成功打印出路由信息即可。
+服务端程序挂载了几个web路由，并且对 `go-plugify` 进行了初始化。
+
+### 客户端
+
+进入 `client` 目录，运行：`make run`，即可运行。
+客户端程序的代码在 `src` 目录下。他的逻辑是修改了服务端中 `http://localhost:8080/` 路径对应的处理方法，以及调用服务端的程序进行处理计算逻辑返回。
+如 `client/src/plugin.go` 的代码：
+
+```go
+// Run is called when the plugin is executed.
+func (p Plugin) Run(args any) {
+	ctx := args.(HttpContext)
+	p.Logger().Info("Plugin %s is running, ctx %+v", p.Name, ctx)
+	p.Component("ginengine").(HttpRouter).ReplaceHandler("GET", "/", func(ctx context.Context) {
+		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from plugin !!!"})
+	})
+	cal := p.Component("calculator").(Calculator)
+	ctx.JSON(200, map[string]any{
+		"message":      "Plugin executed successfully",
+		"load pkg":     pkg.SayHello(),
+		"1 + 5 * 5 = ": cal.Add(1, cal.Mul(5, 5)),
+	})
+}
+```
+
+您可以修改体验下这里的使用方式。

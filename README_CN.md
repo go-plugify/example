@@ -9,7 +9,7 @@
 
 ## 运行
 
-<img alt="example" src="https://github.com/go-plugify/example/blob/main/example.gif?raw=true" width="351">
+<img alt="example" src="https://github.com/go-plugify/example/blob/main/example.gif?raw=true" width="651">
 
 ### 服务端
 

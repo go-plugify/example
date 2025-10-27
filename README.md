@@ -9,7 +9,7 @@ This is a simple example demonstrating how to use go-plugify, including both the
 
 ## Run
 
-<img alt="example" src="https://github.com/go-plugify/example/blob/main/example.gif?raw=true" width="351">
+<img alt="example" src="https://github.com/go-plugify/example/blob/main/example.gif?raw=true" width="651">
 
 ### Server
 

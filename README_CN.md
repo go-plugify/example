@@ -9,6 +9,8 @@
 
 ## 运行
 
+<img alt="example" src="https://github.com/go-plugify/example/blob/main/example.gif?raw=true" width="351">
+
 ### 服务端
 
 进入 `server` 目录，直接运行 `go run main.go`，看到启动成功打印出路由信息即可。

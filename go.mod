@@ -4,7 +4,7 @@ go 1.23.10
 
 require (
 	github.com/gin-gonic/gin v1.11.0
-	github.com/go-plugify/go-plugify v0.0.0-20251015021623-3cf89eb4d8e1
+	github.com/go-plugify/go-plugify v0.0.0-20251028065253-79007b103c4f
 	github.com/go-plugify/webadapters v0.0.0-20251014141509-30209ac00966
 )
 

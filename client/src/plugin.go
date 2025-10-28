@@ -63,9 +63,11 @@ func NewBookService(service any, plug Plugin) *BookService {
 	}
 }
 
-func (s *BookService) ListBooks() any {
+func (s *BookService) ListBooks() []Book {
 	resp := s.plug.CallIgnore(s.service, "ListBooks")
-	return resp[0]
+	books := make([]Book, 0)
+	s.plug.ConvertTo(resp[0], &books)
+	return books
 }
 
 func (s *BookService) AddBook(b Book) {

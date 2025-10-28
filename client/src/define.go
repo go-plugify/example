@@ -47,6 +47,7 @@ type Logger interface {
 type Util interface {
 	GetAttr(obj any, attrName string) any
 	CallMethod(obj any, methodName string, args ...any) ([]any, error)
+	ConvertTo(src, dist any) error
 }
 
 type Components interface {
@@ -77,6 +78,10 @@ func (p Plugin) CallMethod(obj any, methodName string, args ...any) ([]any, erro
 func (p Plugin) CallIgnore(obj any, methodName string, args ...any) []any {
 	resp, _ := p.Components.GetUtil().(Util).CallMethod(obj, methodName, args...)
 	return resp
+}
+
+func (p Plugin) ConvertTo(src, dist any) error {
+	return p.Components.GetUtil().(Util).ConvertTo(src, dist)
 }
 
 type HttpContext interface {

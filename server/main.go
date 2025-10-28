@@ -1,6 +1,10 @@
 package main
 
 import (
+	"net/http"
+	"strconv"
+	"sync"
+
 	"github.com/gin-gonic/gin"
 	goplugify "github.com/go-plugify/go-plugify"
 	ginadapter "github.com/go-plugify/webadapters/gin"
@@ -13,47 +17,120 @@ func main() {
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
-	ginrouters := ginadapter.NewHttpRouter(r)
+
+	ginRouter := ginadapter.NewHttpRouter(r)
+
+	bookService := NewBookService()
+
 	plugManager := goplugify.Init("default",
-		goplugify.ComponentWithName("ginengine", ginrouters),
-		goplugify.ComponentWithName("calculator", &Caclulator{}),
+		goplugify.ComponentWithName("ginengine", ginRouter),
+		goplugify.ComponentWithName("bookService", bookService),
 	)
-	r.GET("/", func(c *gin.Context) {
-		c.String(200, "Hello, World!")
-	})
-	r.GET("/add", func(c *gin.Context) {
-		// call plugin method "add"
-		examplePlug, exist := plugManager["default"].GetPlugins().Get("example")
-		if exist {
-			c.JSON(200, gin.H{"result": examplePlug.CallMethod("add", []int{5, 10})})
-			return
-		}
-		c.JSON(200, gin.H{"result": 1 + 1})
-	})
-	plugManager.RegisterRoutes(ginrouters, "/api/v1")
+
+	registerCoreRoutes(r, bookService)
+
+	plugManager.RegisterRoutes(ginRouter, "/api/v1")
+
 	return r
 }
 
-// example custom component
+func registerCoreRoutes(r *gin.Engine, svc *BookService) {
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "📚 Welcome to Go-Plugify Book Manager!")
+	})
 
-type Caclulator struct {
+	r.GET("/api/v1/books", func(c *gin.Context) {
+		c.JSON(http.StatusOK, svc.ListBooks())
+	})
+
+	r.POST("/api/v1/books", func(c *gin.Context) {
+		var book Book
+		if err := c.ShouldBindJSON(&book); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		svc.AddBook(book)
+		c.JSON(http.StatusOK, gin.H{"msg": "book added"})
+	})
+
+	r.PUT("/api/v1/books/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		var book Book
+		if err := c.ShouldBindJSON(&book); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if svc.UpdateBook(id, book) {
+			c.JSON(http.StatusOK, gin.H{"msg": "book updated"})
+		} else {
+			c.JSON(http.StatusNotFound, gin.H{"msg": "book not found"})
+		}
+	})
+
+	r.DELETE("/api/v1/books/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		if svc.DeleteBook(id) {
+			c.JSON(http.StatusOK, gin.H{"msg": "book deleted"})
+		} else {
+			c.JSON(http.StatusNotFound, gin.H{"msg": "book not found"})
+		}
+	})
 }
 
-func (c *Caclulator) Add(a, b int) int {
-	return a + b
+type Book struct {
+	ID     int    `json:"id"`
+	Title  string `json:"title"`
+	Author string `json:"author"`
 }
 
-func (c *Caclulator) Sub(a, b int) int {
-	return a - b
+type BookService struct {
+	mu    sync.Mutex
+	books map[int]Book
+	next  int
 }
 
-func (c *Caclulator) Mul(a, b int) int {
-	return a * b
-}
-
-func (c *Caclulator) Div(a, b int) int {
-	if b == 0 {
-		return 0
+func NewBookService() *BookService {
+	return &BookService{
+		books: map[int]Book{},
+		next:  1,
 	}
-	return a / b
+}
+
+func (s *BookService) ListBooks() []Book {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	result := make([]Book, 0, len(s.books))
+	for _, b := range s.books {
+		result = append(result, b)
+	}
+	return result
+}
+
+func (s *BookService) AddBook(b Book) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	b.ID = s.next
+	s.next++
+	s.books[b.ID] = b
+}
+
+func (s *BookService) UpdateBook(id int, b Book) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.books[id]; !ok {
+		return false
+	}
+	b.ID = id
+	s.books[id] = b
+	return true
+}
+
+func (s *BookService) DeleteBook(id int) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.books[id]; !ok {
+		return false
+	}
+	delete(s.books, id)
+	return true
 }

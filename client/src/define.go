@@ -74,6 +74,11 @@ func (p Plugin) CallMethod(obj any, methodName string, args ...any) ([]any, erro
 	return p.Components.GetUtil().(Util).CallMethod(obj, methodName, args...)
 }
 
+func (p Plugin) CallIgnore(obj any, methodName string, args ...any) []any {
+	resp, _ := p.Components.GetUtil().(Util).CallMethod(obj, methodName, args...)
+	return resp
+}
+
 type HttpContext interface {
 	Query(key string) string
 	JSON(code int, obj any)

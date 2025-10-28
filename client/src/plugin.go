@@ -16,14 +16,17 @@ func init() {
 func (p Plugin) Run(args any) {
 	ctx := args.(HttpContext)
 	p.Logger().Info("Plugin %s is running, ctx %+v", p.Name, ctx)
-	p.Component("ginengine").(HttpRouter).ReplaceHandler("GET", "/", func(ctx context.Context) {
-		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from plugin !!!"})
+	p.GetGinEngine().ReplaceHandler("GET", "/", func(ctx context.Context) {
+		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from example plugin !!!"})
 	})
-	cal := p.Component("calculator").(Calculator)
+	bookService := NewBookService(p.Component("bookService"), p)
+	bookService.AddBook(Book{ID: 1, Title: "1984", Author: "George Orwell"})
+	bookService.AddBook(Book{ID: 2, Title: "To Kill a Mockingbird", Author: "Harper Lee"})
+	bookService.DeleteBook(1)
 	ctx.JSON(200, map[string]any{
-		"message":      "Plugin executed successfully",
-		"load pkg":     pkg.SayHello(),
-		"1 + 5 * 5 = ": cal.Add(1, cal.Mul(5, 5)),
+		"message":  "Plugin executed successfully",
+		"load pkg": pkg.SayHello(),
+		"books":    bookService.ListBooks(),
 	})
 }
 
@@ -44,9 +47,43 @@ func (p Plugin) Methods() map[string]func(any) any {
 // custom interface
 // ==============================
 
-type Calculator interface {
-	Add(a, b int) int
-	Sub(a, b int) int
-	Mul(a, b int) int
-	Div(a, b int) int
+func (p Plugin) GetGinEngine() HttpRouter {
+	return p.Component("ginengine").(HttpRouter)
+}
+
+type BookService struct {
+	service any
+	plug    Plugin
+}
+
+func NewBookService(service any, plug Plugin) *BookService {
+	return &BookService{
+		service: service,
+		plug:    plug,
+	}
+}
+
+func (s *BookService) ListBooks() any {
+	resp := s.plug.CallIgnore(s.service, "ListBooks")
+	return resp[0]
+}
+
+func (s *BookService) AddBook(b Book) {
+	s.plug.CallIgnore(s.service, "AddBook", b)
+}
+
+func (s *BookService) UpdateBook(id int, b Book) bool {
+	resp := s.plug.CallIgnore(s.service, "UpdateBook", id, b)
+	return resp[0].(bool)
+}
+
+func (s *BookService) DeleteBook(id int) bool {
+	resp := s.plug.CallIgnore(s.service, "DeleteBook", id)
+	return resp[0].(bool)
+}
+
+type Book struct {
+	ID     int    `json:"id"`
+	Title  string `json:"title"`
+	Author string `json:"author"`
 }

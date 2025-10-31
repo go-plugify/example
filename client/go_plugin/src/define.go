@@ -19,8 +19,13 @@ type PluginComponents interface {
 	GetComponents() any
 }
 
-func (p *BasePlugin) Load(components any) {
+func (p *BasePlugin) Load(components any) error {
 	p.Components = components.(PluginComponents)
+	return nil
+}
+
+func (p *BasePlugin) Destroy(args any) error {
+	return nil
 }
 
 type Plugin struct {

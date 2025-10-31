@@ -14,11 +14,11 @@ API_ENDPOINT := $(SERVER_URL)/plugin
 BUILD_DIR := build
 SOURCE_DIR := .
 PLUGIN_DIR := src
-BUILD_FILE := $(BUILD_DIR)/$(PLUGIN_DIR)
+BUILD_FILE := $(BUILD_DIR)/plugin.so
 
 # Time-based variables
 NOW_TIME := $(shell date +%Y%m%d%H%M%S)
-BUILD_VERSION := $(PLUGIN_VERSION)-$(NOW_TIME)
+NEW_MODULE_NAME := "plugin$(NOW_TIME)"
 
 define PLUGIN_META
 {
@@ -26,7 +26,7 @@ define PLUGIN_META
   "name": "$(PLUGIN_NAME)",
   "description": "$(PLUGIN_DESCRIPTION)",
   "author": "$(PLUGIN_AUTHOR)",
-  "version": "$(BUILD_VERSION)",
+  "version": "$(PLUGIN_VERSION)",
   "loader": "$(PLUGIN_LOADER)"
 }
 endef
@@ -53,17 +53,25 @@ curl $(CURL_POST_OPTS) \
     "$(API_ENDPOINT)/$(1)" | jq
 endef
 
-.PHONY: build clean init list run load unload upload check-file help show-meta
+.PHONY: build clean init list run load unload check-file help show-meta
 
 # Default target - build and deploy
-run: build upload
+run: build init
 
 # Build the plugin
 build: clean
-	@echo "Building plugin: $(PLUGIN_ID) ($(BUILD_VERSION))..."
+	@echo "Building plugin: $(PLUGIN_ID) ($(PLUGIN_VERSION))..."
 	mkdir -p $(BUILD_DIR)
-	cp -r $(PLUGIN_DIR) $(BUILD_FILE)
-	@echo "Plugin built successfully: $(BUILD_FILE)"
+	cp -r $(PLUGIN_DIR)/* $(BUILD_DIR)/
+	rm -rf $(BUILD_DIR)/go.mod
+	touch $(BUILD_DIR)/go.mod
+	echo "module plugin${NOW_TIME}" > $(BUILD_DIR)/go.mod
+	echo "\ngo 1.23.10" >> $(BUILD_DIR)/go.mod
+	find ./$(BUILD_DIR) -type f \( -name "*.go" -o -name "go.mod" \) | while read file; do \
+		sed -i "s/plugin[0-9]\{14\}/${NEW_MODULE_NAME}/g" $$file; \
+	done
+	cd $(BUILD_DIR) && GO111MODULE=on CGO_ENABLED=1 go build -ldflags="-s -w" -buildmode=plugin -o plugin.so .
+	@echo "Plugin built successfully: $(BUILD_DIR)"
 
 # Clean build directory
 clean:
@@ -71,16 +79,13 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # Initialize/upload a plugin (alias for upload)
-init: upload
-
-# Upload/initialize a plugin
-upload: build
-	@echo "Uploading plugin: $(PLUGIN_ID) ($(BUILD_VERSION))..."
+init: build
+	@echo "Uploading plugin: $(PLUGIN_ID) ($(PLUGIN_VERSION))..."
 	@$(call CURL_UPLOAD,init)
 
 # Load a plugin but not run it
 load: build
-	@echo "Loading plugin: $(PLUGIN_ID) ($(BUILD_VERSION))..."
+	@echo "Loading plugin: $(PLUGIN_ID) ($(PLUGIN_VERSION))..."
 	@$(call CURL_UPLOAD,load)
 
 # List all plugins
@@ -103,11 +108,11 @@ show-meta:
 	@echo "Plugin configuration:"
 	@echo "  ID:          $(PLUGIN_ID)"
 	@echo "  Name:        $(PLUGIN_NAME)"
-	@echo "  Version:     $(BUILD_VERSION)"
+	@echo "  Version:     $(PLUGIN_VERSION)"
 	@echo "  Author:      $(PLUGIN_AUTHOR)"
 	@echo "  Loader:      $(PLUGIN_LOADER)"
 	@echo "  Source:      $(PLUGIN_FILE)"
-	@echo "  Build file:  $(BUILD_FILE)"
+	@echo "  Build file:  $(BUILD_DIR)"
 	@echo ""
 	@echo "Formatted JSON metadata:"
 	@echo '$(PLUGIN_META)' | jq '.'
@@ -122,11 +127,10 @@ check-file:
 # Display help information
 help:
 	@echo "Available targets:"
-	@echo "  run        - Default target (build and upload)"
+	@echo "  run        - Default target (build and init)"
 	@echo "  build      - Build plugin to build directory"
 	@echo "  clean      - Clean build directory"
 	@echo "  init       - Initialize/upload plugin (alias for upload)"
-	@echo "  upload     - Upload/initialize plugin to server"
 	@echo "  load       - Load plugin to server"
 	@echo "  list       - List all plugins on server"
 	@echo "  exec       - Execute/run plugin"
@@ -139,7 +143,7 @@ help:
 	@echo "  Plugin ID:      $(PLUGIN_ID)"
 	@echo "  Plugin Name:    $(PLUGIN_NAME)"
 	@echo "  Plugin File:    $(PLUGIN_FILE)"
-	@echo "  Build Version:  $(BUILD_VERSION)"
+	@echo "  Build Version:  $(PLUGIN_VERSION)"
 	@echo "  Server URL:     $(SERVER_URL)"
 	@echo ""
 	@echo "Usage examples:"

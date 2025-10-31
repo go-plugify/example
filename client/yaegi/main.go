@@ -12,7 +12,7 @@ func Run(input map[string]any) (any, error) {
 			Query(key string) string
 			JSON(code int, obj any)
 		}
-		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from example plugin !!!"})
+		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from example plugin 2 !!!"})
 	})
 	plugify.BookService.AddBook(plugify.ServiceBook{ID: 1, Title: "The Great Gatsby", Author: "F. Scott Fitzgerald"})
 	plugify.BookService.AddBook(plugify.ServiceBook{ID: 2, Title: "Pride and Prejudice", Author: "Jane Austen"})

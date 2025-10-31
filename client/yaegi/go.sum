@@ -1,4 +1,4 @@
-github.com/go-plugify/go-plugify v0.0.0-20251031014725-08f329e39567 h1:Ia3bX8xkI0IFUq07WKzjn+EuY0wPmxi7LQuw0VFkH/c=
-github.com/go-plugify/go-plugify v0.0.0-20251031014725-08f329e39567/go.mod h1:M6cHwyJkR91sPiORUIFZ556M0dHVzPreatltLOqH5Ko=
+github.com/go-plugify/go-plugify v0.0.0-20251031032447-9fafe1a59671 h1:BfLSa9Gs1DqPbZwyj7/45IkUllEonlrelLMAAXb//ds=
+github.com/go-plugify/go-plugify v0.0.0-20251031032447-9fafe1a59671/go.mod h1:M6cHwyJkR91sPiORUIFZ556M0dHVzPreatltLOqH5Ko=
 github.com/traefik/yaegi v0.16.1 h1:f1De3DVJqIDKmnasUF6MwmWv1dSEEat0wcpXhD2On3E=
 github.com/traefik/yaegi v0.16.1/go.mod h1:4eVhbPb3LnD2VigQjhYbEJ69vDRFdT2HQNrXx8eEwUY=

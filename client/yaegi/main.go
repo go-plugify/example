@@ -17,8 +17,16 @@ func Run(input map[string]any) (any, error) {
 	}, nil
 }
 
-var Methods = map[string]func(any) any{}
+func Methods() map[string]func(any) any {
+	return map[string]func(any) any{
+		"hello": func(input any) any {
+			plugify.Logger.Info("Hello from the 'hello' method!")
+			return "Hello, World!"
+		},
+	}
+}
 
-func Destroy(any) error {
+func Destroy(input map[string]any) error {
+	plugify.Logger.Info("Example plugin is being destroyed")
 	return nil
 }

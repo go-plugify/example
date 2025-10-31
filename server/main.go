@@ -27,17 +27,32 @@ func setupRouter() *gin.Engine {
 		goplugify.ComponentWithName("bookService", bookService),
 	)
 
-	registerCoreRoutes(r, bookService)
+	registerCoreRoutes(r, plugManager, bookService)
 
 	goplugify.InitHTTPServer(plugManager).RegisterRoutes(ginRouter, "/api/v1")
 
 	return r
 }
 
-func registerCoreRoutes(r *gin.Engine, svc *service.BookService) {
+func registerCoreRoutes(r *gin.Engine, plugManager goplugify.PluginManagers, svc *service.BookService) {
 	r.GET("/", func(c *gin.Context) {
 		c.String(200, "📚 Welcome to Go-Plugify Book Manager!")
 	})
+
+	r.GET("/hello", func(c *gin.Context) {
+		examplePlug, err := plugManager["default"].GetPlugin("example")
+		if err != nil {
+			c.String(500, "Error retrieving plugin: %v", err)
+			return
+		}
+		helloFn, ok := examplePlug.Method("hello")
+		if !ok {
+			c.String(500, "Plugin method 'hello' not found")
+			return
+		}
+		resp := helloFn(nil)
+		c.JSON(200, gin.H{"message": resp})
+	})	
 
 	r.GET("/api/v1/books", func(c *gin.Context) {
 		c.JSON(http.StatusOK, svc.ListBooks())

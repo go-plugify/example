@@ -1,9 +1,10 @@
 package main
 
 import (
-	"example_server/service"
 	"net/http"
 	"strconv"
+
+	"example.com/server/service"
 
 	"github.com/gin-gonic/gin"
 	goplugify "github.com/go-plugify/go-plugify"
@@ -52,7 +53,7 @@ func registerCoreRoutes(r *gin.Engine, plugManager goplugify.PluginManagers, svc
 		}
 		resp := helloFn(nil)
 		c.JSON(200, gin.H{"message": resp})
-	})	
+	})
 
 	r.GET("/api/v1/books", func(c *gin.Context) {
 		c.JSON(http.StatusOK, svc.ListBooks())

@@ -20,7 +20,13 @@ define PLUGIN_META
   "description": "$(PLUGIN_DESCRIPTION)",
   "author": "$(PLUGIN_AUTHOR)",
   "version": "$(PLUGIN_VERSION)",
-  "loader": "$(PLUGIN_LOADER)"
+  "loader": "$(PLUGIN_LOADER)",
+  "components": [
+	{
+		"pkg_path": "example.com/server/service",
+		"name": "Book"
+	}
+  ]
 }
 endef
 

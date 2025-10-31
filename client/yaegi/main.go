@@ -8,11 +8,7 @@ import (
 func Run(input map[string]any) (any, error) {
 	plugify.Logger.Info("Example plugin is running")
 	plugify.Ginengine.ReplaceHandler("GET", "/", func(ctx context.Context) {
-		type HttpContext interface {
-			Query(key string) string
-			JSON(code int, obj any)
-		}
-		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from example plugin 2 !!!"})
+		plugify.Ginengine.NewHTTPContext(ctx).JSON(200, map[string]string{"message": "Hello from example plugin 2 !!!"})
 	})
 	plugify.BookService.AddBook(plugify.ServiceBook{ID: 1, Title: "The Great Gatsby", Author: "F. Scott Fitzgerald"})
 	plugify.BookService.AddBook(plugify.ServiceBook{ID: 2, Title: "Pride and Prejudice", Author: "Jane Austen"})

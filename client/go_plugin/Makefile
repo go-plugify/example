@@ -4,7 +4,7 @@ PLUGIN_NAME := Example Plugin
 PLUGIN_DESCRIPTION := An example plugin
 PLUGIN_AUTHOR := Your Name
 PLUGIN_VERSION := v0.0.1
-PLUGIN_LOADER := yaegi_http
+PLUGIN_LOADER := native_plugin_http
 
 # Server configuration
 SERVER_URL := http://localhost:8080/api/v1
@@ -13,8 +13,8 @@ API_ENDPOINT := $(SERVER_URL)/plugin
 # Build configuration
 BUILD_DIR := build
 SOURCE_DIR := .
-PLUGIN_FILE := main.go
-BUILD_FILE := $(BUILD_DIR)/$(PLUGIN_FILE)
+PLUGIN_DIR := src
+BUILD_FILE := $(BUILD_DIR)/$(PLUGIN_DIR)
 
 # Time-based variables
 NOW_TIME := $(shell date +%Y%m%d%H%M%S)
@@ -62,7 +62,7 @@ run: build upload
 build: clean
 	@echo "Building plugin: $(PLUGIN_ID) ($(BUILD_VERSION))..."
 	mkdir -p $(BUILD_DIR)
-	cp $(PLUGIN_FILE) $(BUILD_FILE)
+	cp -r $(PLUGIN_DIR) $(BUILD_FILE)
 	@echo "Plugin built successfully: $(BUILD_FILE)"
 
 # Clean build directory

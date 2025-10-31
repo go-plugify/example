@@ -13,9 +13,8 @@ func init() {
 }
 
 // Run is called when the plugin is executed.
-func (p Plugin) Run(args any) {
-	ctx := args.(HttpContext)
-	p.Logger().Info("Plugin %s is running, ctx %+v", p.Name, ctx)
+func (p Plugin) Run(args any) (any, error) {
+	p.Logger().Info("Plugin %s is running", p.Name)
 	p.GetGinEngine().ReplaceHandler("GET", "/", func(ctx context.Context) {
 		ctx.(HttpContext).JSON(200, map[string]string{"message": "Hello from example plugin !!!"})
 	})
@@ -23,11 +22,11 @@ func (p Plugin) Run(args any) {
 	bookService.AddBook(Book{ID: 1, Title: "1984", Author: "George Orwell"})
 	bookService.AddBook(Book{ID: 2, Title: "To Kill a Mockingbird", Author: "Harper Lee"})
 	bookService.DeleteBook(1)
-	ctx.JSON(200, map[string]any{
+	return map[string]any{
 		"message":  "Plugin executed successfully",
 		"load pkg": pkg.SayHello(),
 		"books":    bookService.ListBooks(),
-	})
+	}, nil
 }
 
 // Methods returns a map of method names to functions that can be called on the plugin.

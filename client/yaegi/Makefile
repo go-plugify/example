@@ -25,6 +25,10 @@ define PLUGIN_META
 	{
 		"pkg_path": "example.com/server/service",
 		"name": "Book"
+	},
+	{
+		"pkg_path": "example.com/server/service",
+		"name": "FictionBook"
 	}
   ]
 }

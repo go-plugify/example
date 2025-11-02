@@ -16,3 +16,5 @@ var Util = new(goplugify.Util)
 var Ginengine = new(ginadapter.HttpRouter)
 
 type ServiceBook = service.Book
+
+type ServiceFictionBook = service.FictionBook

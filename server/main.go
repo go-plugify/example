@@ -26,6 +26,7 @@ func setupRouter() *gin.Engine {
 	plugManager := goplugify.InitPluginManagers("default",
 		goplugify.ComponentWithName("ginengine", ginRouter),
 		goplugify.ComponentWithName("bookService", bookService),
+		goplugify.ComponentWithName("allKindBook", new(service.AllKindBook)),
 	)
 
 	registerCoreRoutes(r, plugManager, bookService)

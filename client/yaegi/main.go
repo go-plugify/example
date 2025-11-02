@@ -18,6 +18,11 @@ func Run(input map[string]any) (any, error) {
 	return map[string]any{
 		"message": "Plugin executed successfully",
 		"books":   plugify.BookService.ListBooks(),
+		"fictionBook": plugify.ServiceFictionBook{Book: plugify.ServiceBook{
+			ID:     1,
+			Title:  "Dune",
+			Author: "Frank Herbert",
+		}},
 	}, nil
 }
 

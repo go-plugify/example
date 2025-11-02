@@ -59,3 +59,13 @@ func (s *BookService) DeleteBook(id int) bool {
 	delete(s.books, id)
 	return true
 }
+
+type FictionBook struct{ Book }
+type ScienceBook struct{ Book }
+type HistoryBook struct{ Book }
+
+type AllKindBook struct {
+	FictionBook FictionBook
+	ScienceBook ScienceBook
+	HistoryBook HistoryBook
+}

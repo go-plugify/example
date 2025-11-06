@@ -1,3 +1,7 @@
+<a name="readme-top"></a>
+
+[[中文介绍]](https://github.com/go-plugify/example/blob/main/README_CN.md)  |  [[Join Discord]](https://discord.gg/B3FwBSQq)
+
 # go-plugify Example
 
 This is a simple example demonstrating how to use `go-plugify`, including both the server and client parts.
@@ -135,6 +139,7 @@ The request uses multipart form data:
 | author | string | Plugin author | Jack |
 | version | string | Plugin version, format: vx.x.x | v0.0.1 |
 | loader | enum | Plugin loader type (supported: native_plugin_http / yaegi_http) | native_plugin_http |
+| components | JSON | 依赖的类型等 | [{"pkg_path": "example.com/server/service","name": "Book"},{"pkg_path": "example.com/server/service","name": "FictionBook"}] |
 
 Finally, the API endpoint corresponds to the registered route on the server:  
 `<domain>:<port>/<prefix>/plugin/init`.

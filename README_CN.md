@@ -1,3 +1,7 @@
+<a name="readme-top"></a>
+
+[[英文介绍]](https://github.com/go-plugify/example)  |  [[Join Discord]](https://discord.gg/B3FwBSQq)
+
 # go-plugify 例子
 
 这是一个简单的展示`go-plugify`怎么使用的例子。包括服务端跟客户端两部分。
@@ -134,5 +138,6 @@ curl --insecure -s -X POST \
 | author | string |  插件作者 | Jack |
 | version | string |  插件版本，格式为：vx.x.x | v0.0.1 |
 | loader | enum |  插件加载器，目前支持：native_plugin_http/yaegi_http | native_plugin_http |
+| components | JSON | 依赖的类型等 | [{"pkg_path": "example.com/server/service","name": "Book"},{"pkg_path": "example.com/server/service","name": "FictionBook"}] |
 
 最后，接口地址是服务端中注册的地址，域名+监听端口+前缀+`/plugin/init`。
